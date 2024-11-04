@@ -24,6 +24,8 @@
 
 #define ser               D5
 
+
+
 Servo servo;
 // Update these with values suitable for your network.
 
@@ -37,14 +39,17 @@ int pos=0;
 
 // Subscribed Topics
 
-#define sub1 "device1/relay1"
-#define sub2 "device1/relay2"
-#define sub3 "device1/relay3"
-#define sub4 "device1/relay4"
+#define sub1 "device1/relay1" //OFF SLOT
+#define sub2 "LOW COOL" // 
+#define sub3 "LOW FAN"
+#define sub4 "Manual/OFF"
 #define sub5 "device1/relay5"
 #define sub6 "device1/relay6"
 #define sub7 "device1/relay7"
 #define sub9 "device1/relay9"
+#define sub10 "aircon on"
+#define sub11 "aircon off"// slot
+
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -87,7 +92,7 @@ void callback(char* topic, byte* payload, unsigned int length)
   Serial.print(topic);
   Serial.print("] ");
   servo.write(pos);
- 
+//////////////////////////**********************OFF************************ /////////////////////////////////// 
   if (strstr(topic, sub1))
   {
     for (int i = 0; i < length; i++)
@@ -98,15 +103,47 @@ void callback(char* topic, byte* payload, unsigned int length)
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '1')
     {
-//      digitalWrite(Relay1, HIGH);   
-       servo.write(180);
-       Serial.println("1");
+      Serial.println("off");
+      servo.write(180); // off
     }
-//    else {
-//      digitalWrite(Relay1, LOW);  // Turn the LED off by making the voltage HIGH
-//    }
+  
   }
-//////////////////////////**********************TWO************************ ///////////////////////////////////
+
+
+
+//////////////////////////**********************AIRCON (GOOGLE)************************ /////////////////////////////////// 
+  if (strstr(topic, sub10))
+  {
+    for (int i = 0; i < length; i++)
+    {
+      Serial.print((char)payload[i]);
+    }
+    Serial.println();
+    // Switch on the LED if an 1 was received as first character
+    if ((char)payload[0] == '1')
+    {
+      Serial.println("ON");
+      Serial.println("LOW FAN 3MINS");
+      servo.write(105); // LOW FAN 3MINS
+      delay(180000);
+      
+      servo.write(30); // LOW COOL
+      
+    }
+  
+    else {
+      Serial.println("OFF");
+      Serial.println("LOW FAN 3MINS");
+      servo.write(105); // LOW FAN 3MINS
+      delay(180000);
+      servo.write(180);
+    }
+  }
+
+
+  
+  
+//////////////////////////**********************LOW COOL************************ ///////////////////////////////////
   else if ( strstr(topic, sub2))
   {
     for (int i = 0; i < length; i++) {
@@ -124,7 +161,7 @@ void callback(char* topic, byte* payload, unsigned int length)
 //    }
   }
 
-//////////////////////////**********************THREE************************ ///////////////////////////////////
+//////////////////////////**********************LOW FAN************************ ///////////////////////////////////
   else if ( strstr(topic, sub3))
   {
     for (int i = 0; i < length; i++) {
@@ -141,7 +178,7 @@ void callback(char* topic, byte* payload, unsigned int length)
 //      digitalWrite(Relay3, LOW);  // Turn the LED off by making the voltage HIGH
 //    }
   }
-//////////////////////////**********************FOUR************************ ///////////////////////////////////
+//////////////////////////**********************MANUAL OFF************************ ///////////////////////////////////
   else if ( strstr(topic, sub4))
   {
     for (int i = 0; i < length; i++) {
@@ -150,11 +187,12 @@ void callback(char* topic, byte* payload, unsigned int length)
     Serial.println();
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '1') {
-      digitalWrite(Relay4, HIGH);   // Turn the LED on (Note that LOW is the voltage level
+    
 //      for (pos = 180; pos >= 0; pos-= 1){
 //        servo.write(pos);
 //        delay(15);
 //      }
+
       servo.write(180);
       Serial.println("4");
     } 
@@ -287,14 +325,6 @@ void callback(char* topic, byte* payload, unsigned int length)
   }
 
 
-
-
-
-
-
-
-
-
   else
   {
     Serial.println("unsubscribed topic");
@@ -327,6 +357,8 @@ void reconnect()
       client.subscribe(sub6);
       client.subscribe(sub7);
       client.subscribe(sub9);
+      client.subscribe(sub10);
+      client.subscribe(sub11);
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
