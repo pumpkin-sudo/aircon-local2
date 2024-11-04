@@ -391,7 +391,7 @@ void callback(char* topic, byte* payload, unsigned int length)
       display.clearDisplay();
       display.setTextSize(1);
       display.setCursor(0,0);
-      display.println("John Aircon");
+      display.println("LOW COOL");
       display.setTextSize(2);
       display.setCursor(0,12);
       display.println("TIMER 1 HR");
@@ -402,8 +402,16 @@ void callback(char* topic, byte* payload, unsigned int length)
       delay(3.6e+6);
       
       servo.write(105); // LOW FAN 3MINS
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setCursor(0,0);
+      display.println("TIMER");
+      display.setTextSize(2);
+      display.setCursor(0,12);
+      display.println("LOW FAN");
+      display.display();  
       Serial.println("LOW FAN 3MINS");
-      delay(180000);
+      delay(120000);
       
       servo.write(180);   // OFF
     } 
@@ -428,19 +436,31 @@ void callback(char* topic, byte* payload, unsigned int length)
       display.clearDisplay();
       display.setTextSize(1);
       display.setCursor(0,0);
-      display.println("John Aircon");
+      display.println("LOW COOL");
       display.setTextSize(2);
       display.setCursor(0,12);
       display.println("TIMER 2 HR");
-      display.display();  
+      display.display(); 
       
       servo.write(30); // LOW COOL
       Serial.println("LOW COOL");
       delay(7.2e+6);
       
       servo.write(105); // LOW FAN 3MINS
+      
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setCursor(0,0);
+      display.println("TIMER");
+      display.setTextSize(2);
+      display.setCursor(0,12);
+      display.println("LOW FAN");
+      display.display();  
       Serial.println("LOW FAN 3MINS");
-      delay(180000);
+      delay(120000);
+      
+      Serial.println("LOW FAN 3MINS");
+      delay(120000);
       
       servo.write(180);   // OFF
 
