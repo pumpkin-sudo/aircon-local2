@@ -487,12 +487,26 @@ void reconnect()
   // Loop until we're reconnected
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
+    
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+  display.setTextSize(1);
+  display.setCursor(0,0);
+  display.println("Attempting MQTT");
+  display.display();
+      
     // Create a random client ID
-    String clientId = "ESP8266Client-";
-    clientId += String(random(0xffff), HEX);
+    String clientId = "ESP8266Client-" + String(random(0xffff), HEX);
     // Attempt to connect
     if (client.connect(clientId.c_str() , username, pass)) {
       Serial.println("connected");
+
+
+      display.setTextSize(2);
+      display.setCursor(0,15);
+      display.println("connected");
+      display.display();    
+
       // Once connected, publish an announcement...
       client.publish("outTopic", "hello world");
       // ... and resubscribe
@@ -555,12 +569,12 @@ void setup()
     Serial.println(F("SSD1306 allocation failed"));
     for (;;);
   }
-  display.clearDisplay();
-  display.setTextColor(WHITE);
-  display.setTextSize(2);
-  display.setCursor(0,0);
-  display.println("John pogi");
-  display.display();
+//  display.clearDisplay();
+//  display.setTextColor(WHITE);
+//  display.setTextSize(2);
+//  display.setCursor(0,0);
+//  display.println("John pogi");
+//  display.display();
 
 
   
