@@ -13,6 +13,13 @@
 #endif
 #include <Servo.h> 
 #include <PubSubClient.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#define OLED_ADDR   0x3C
+Adafruit_SSD1306 display(128, 64, &Wire, -1);
+
+
 
 //Relays for switching appliances
 #define Relay1            D4
@@ -23,8 +30,14 @@
 // #define Relay6            D2
 
 #define ser               D5
+////////////////////////////////////////////////////////////////////
+// Define global variables for timing
+unsigned long previousMillis = 0;
+const long fanDelay = 15000; // 30 seconds
 
-
+// Variable to track the state of the servo
+bool fanActive = false;
+///////////////////////////////////////////////////
 
 Servo servo;
 // Update these with values suitable for your network.
@@ -91,7 +104,7 @@ void callback(char* topic, byte* payload, unsigned int length)
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
-  servo.write(pos);
+//  servo.write(pos);
 //////////////////////////**********************OFF************************ /////////////////////////////////// 
   if (strstr(topic, sub1))
   {
@@ -112,7 +125,7 @@ void callback(char* topic, byte* payload, unsigned int length)
 
 
 //////////////////////////**********************AIRCON (GOOGLE)************************ /////////////////////////////////// 
-  if (strstr(topic, sub10))
+  else if (strstr(topic, sub10))
   {
     for (int i = 0; i < length; i++)
     {
@@ -120,29 +133,81 @@ void callback(char* topic, byte* payload, unsigned int length)
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
-    if ((char)payload[0] == '1')
-    {
-      Serial.println("ON");
-      Serial.println("LOW FAN 3MINS");
+    if ((char)payload[0] == '1'){
+
+     
       servo.write(105); // LOW FAN 3MINS
-      delay(180000);
+      Serial.println("LOW FAN 3MINS");
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setCursor(0,0);
+      display.println("Voice on");
+      display.setTextSize(2);
+      display.setCursor(0,12);
+      display.println("LOW FAN");
+      display.display();    
+
       
-      servo.write(30); // LOW COOL
-      
+//      delay(10000);
+//      servo.write(30); // LOW COOL
+//      Serial.println("LOW COOL pass");
     }
   
     else {
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setCursor(0,0);
+      display.println("Voice on");
+      display.setTextSize(2);
+      display.setCursor(0,12);
+      display.println("TURNING OFF");
+      display.display();   
+       
       Serial.println("OFF");
       Serial.println("LOW FAN 3MINS");
       servo.write(105); // LOW FAN 3MINS
-      delay(180000);
+      delay(120000);
+      
       servo.write(180);
     }
   }
 
 
-  
-  
+
+
+//========== delay na pwede mag work ang ibang condition using millis ===================
+//else if (strstr(topic, sub10)) {
+//    // Print the payload
+//    for (int i = 0; i < length; i++) {
+//      Serial.print((char)payload[i]);
+//    }
+//    Serial.println();
+//
+//    // Switch on the LED if a '1' was received as the first character
+//    if ((char)payload[0] == '1') {
+//      if (!fanActive) {
+//        // Start the fan
+//        servo.write(105); // LOW FAN 3MINS
+//        Serial.println("LOW FAN 3MINS");
+//        previousMillis = millis(); // Record the start time
+//        fanActive = true;
+//      }
+//    }
+//  
+//
+//  // Handle the non-blocking delay
+//  if (fanActive) {
+//    unsigned long currentMillis = millis();
+//    if (currentMillis - previousMillis >= fanDelay) {
+//      // Time has elapsed, switch the servo
+//      servo.write(30); // LOW COOL
+//      Serial.println("LOW COOL pass");
+//      fanActive = false; // Reset the state
+//    }
+//  }
+//}
+
+
 //////////////////////////**********************LOW COOL************************ ///////////////////////////////////
   else if ( strstr(topic, sub2))
   {
@@ -153,8 +218,31 @@ void callback(char* topic, byte* payload, unsigned int length)
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '1') {
       digitalWrite(Relay2, HIGH);   //
+
+//      display.clearDisplay();
+//      display.setTextSize(1);
+//      display.setCursor(0,0);
+//      display.println("John Aircon");
+//      display.setTextSize(2);
+//      display.setCursor(0,12);
+//      display.println("LOW FAN");
+//      display.display();     
+//      servo.write(105);
+//      delay(10000);
+      
       servo.write(30);
-     Serial.println("2");
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setCursor(0,0);
+      display.println("John Aircon");
+      display.setTextSize(2);
+      display.setCursor(0,12);
+      display.println("LOW COOL");
+      display.display();  
+      Serial.println("low cool");
+     
+
+     
     }
 //    else {
 //      digitalWrite(Relay2, LOW);  // Turn the LED off by making the voltage HIGH
@@ -172,7 +260,21 @@ void callback(char* topic, byte* payload, unsigned int length)
     if ((char)payload[0] == '1') {
       digitalWrite(Relay3, HIGH);
       servo.write(105);
-      Serial.println("3");
+      Serial.println("low fan");
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setCursor(0,0);
+      display.println("John Aircon");
+      display.setTextSize(2);
+      display.setCursor(0,12);
+      display.println("LOW FAN");
+      display.display();    
+//       startTimer();
+
+  
+
+
+
     } 
 //    else {
 //      digitalWrite(Relay3, LOW);  // Turn the LED off by making the voltage HIGH
@@ -195,6 +297,14 @@ void callback(char* topic, byte* payload, unsigned int length)
 
       servo.write(180);
       Serial.println("4");
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setCursor(0,0);
+      display.println("John Aircon");
+      display.setTextSize(2);
+      display.setCursor(0,12);
+      display.println("OFF");
+      display.display();    
     } 
 //    else {
 //      digitalWrite(Relay4, LOW);  // Turn the LED off by making the voltage HIGH
@@ -267,7 +377,7 @@ void callback(char* topic, byte* payload, unsigned int length)
 
 
 
-//////////////////////////********************** ON 1HR ************************ ///////////////////////////////////
+//////////////////////////********************** ALREADY ON 1HR ************************ ///////////////////////////////////
   else if ( strstr(topic, sub7))
   {
     for (int i = 0; i < length; i++) {
@@ -277,6 +387,15 @@ void callback(char* topic, byte* payload, unsigned int length)
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '1') {
       Serial.println("1HR");
+
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setCursor(0,0);
+      display.println("John Aircon");
+      display.setTextSize(2);
+      display.setCursor(0,12);
+      display.println("TIMER 1 HR");
+      display.display();    
       
       servo.write(30); // LOW COOL
       Serial.println("LOW COOL");
@@ -295,7 +414,7 @@ void callback(char* topic, byte* payload, unsigned int length)
   }
 
 
-//////////////////////////**********************ON 2HR ************************ ///////////////////////////////////
+//////////////////////////*********************ALREADY ON 2HR ************************ ///////////////////////////////////
   else if ( strstr(topic, sub9))
   {
     for (int i = 0; i < length; i++) {
@@ -306,6 +425,14 @@ void callback(char* topic, byte* payload, unsigned int length)
     if ((char)payload[0] == '1') {
 
       Serial.println("2HR");
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setCursor(0,0);
+      display.println("John Aircon");
+      display.setTextSize(2);
+      display.setCursor(0,12);
+      display.println("TIMER 2 HR");
+      display.display();  
       
       servo.write(30); // LOW COOL
       Serial.println("LOW COOL");
@@ -368,12 +495,55 @@ void reconnect()
     }
   }
 }
+//void lowcool() {
+//  Serial.println("lowcool");
+//  servo.write(30);
+//  delay(5000);
+//  }
+//
 
 
+//void startTimer() {
+//  int totalSeconds = 180; // 3 minutes = 180 seconds
+//  
+//  for (int i = totalSeconds; i >= 0; i--) {
+//    int minutes = i / 60;
+//    int seconds = i % 60;
+//    
+//    display.clearDisplay();
+//    display.setTextSize(2);
+//    display.setTextColor(SSD1306_WHITE);
+//    display.setCursor(0, 20);
+//    display.printf("Time: %02d:%02d", minutes, seconds);
+//    display.display();
+//    
+//    delay(1000); // Wait for 1 second
+//  }
+//  
+//  // Display "Time's up!" when the timer reaches 0
+//  display.clearDisplay();
+//  display.setTextSize(2);
+//  display.setTextColor(SSD1306_WHITE);
+//  display.setCursor(0, 20);
+//  display.println("Time's up!");
+//  display.display();
+//}
 
 void setup()
 {
+   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x64
+    Serial.println(F("SSD1306 allocation failed"));
+    for (;;);
+  }
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+  display.setTextSize(2);
+  display.setCursor(0,0);
+  display.println("John pogi");
+  display.display();
 
+
+  
   pinMode(Relay1, OUTPUT);
   pinMode(Relay2, OUTPUT);
   pinMode(Relay3, OUTPUT);
