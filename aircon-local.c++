@@ -1,3 +1,9 @@
+//OFF- 180 
+//L FAN - 105
+//L COOL - 30
+
+
+
 #ifdef ESP8266
 #include <ESP8266WiFi.h>
 #elif defined(ESP32)
@@ -37,7 +43,8 @@ int pos=0;
 #define sub4 "device1/relay4"
 #define sub5 "device1/relay5"
 #define sub6 "device1/relay6"
-
+#define sub7 "device1/relay7"
+#define sub9 "device1/relay9"
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -92,7 +99,7 @@ void callback(char* topic, byte* payload, unsigned int length)
     if ((char)payload[0] == '1')
     {
 //      digitalWrite(Relay1, HIGH);   
-       servo.write(0);
+       servo.write(180);
        Serial.println("1");
     }
 //    else {
@@ -109,7 +116,7 @@ void callback(char* topic, byte* payload, unsigned int length)
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '1') {
       digitalWrite(Relay2, HIGH);   //
-      servo.write(60);
+      servo.write(30);
      Serial.println("2");
     }
 //    else {
@@ -127,7 +134,7 @@ void callback(char* topic, byte* payload, unsigned int length)
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '1') {
       digitalWrite(Relay3, HIGH);
-      servo.write(120);
+      servo.write(105);
       Serial.println("3");
     } 
 //    else {
@@ -156,6 +163,8 @@ void callback(char* topic, byte* payload, unsigned int length)
 //    }
   }
 
+
+
 //////////////////////////**********************TIMER 1HR ************************ ///////////////////////////////////
   else if ( strstr(topic, sub5))
   {
@@ -165,13 +174,82 @@ void callback(char* topic, byte* payload, unsigned int length)
     Serial.println();
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '1') {
-      servo.write(180);
       Serial.println("1HR");
-
+      Serial.println("LOW FAN 3MINS");
+      servo.write(105); // LOW FAN 3MINS
+      delay(180000);
       
+      servo.write(30); // LOW COOL
+      Serial.println("LOW COOL");
+      delay(3.6e+6);
+      
+      servo.write(105); // LOW FAN 3MINS
+      Serial.println("LOW FAN 3MINS");
+      delay(180000);
+      
+      servo.write(180);   // OFF
     } 
 
+//    else {
+//      digitalWrite(Relay4, LOW);  // Turn the LED off by making the voltage HIGH
+//    }
+  }
 
+//////////////////////////**********************TIMER 2HR ************************ ///////////////////////////////////
+  else if ( strstr(topic, sub6))
+  {
+    for (int i = 0; i < length; i++) {
+      Serial.print((char)payload[i]);
+    }
+    Serial.println();
+    // Switch on the LED if an 1 was received as first character
+    if ((char)payload[0] == '1') {
+      
+      Serial.println("2HR");
+      Serial.println("LOW FAN 3MINS");
+      servo.write(105); // LOW FAN 3MINS
+      delay(180000);
+      
+      servo.write(30); // LOW COOL
+      Serial.println("LOW COOL");
+      delay(7.2e+6);
+      
+      servo.write(105); // LOW FAN 3MINS
+      Serial.println("LOW FAN 3MINS");
+      delay(180000);
+      
+      servo.write(180);   // OFF
+
+
+    } 
+//    else {
+//      digitalWrite(Relay4, LOW);  // Turn the LED off by making the voltage HIGH
+//    }
+  }
+
+
+
+//////////////////////////********************** ON 1HR ************************ ///////////////////////////////////
+  else if ( strstr(topic, sub7))
+  {
+    for (int i = 0; i < length; i++) {
+      Serial.print((char)payload[i]);
+    }
+    Serial.println();
+    // Switch on the LED if an 1 was received as first character
+    if ((char)payload[0] == '1') {
+      Serial.println("1HR");
+      
+      servo.write(30); // LOW COOL
+      Serial.println("LOW COOL");
+      delay(3.6e+6);
+      
+      servo.write(105); // LOW FAN 3MINS
+      Serial.println("LOW FAN 3MINS");
+      delay(180000);
+      
+      servo.write(180);   // OFF
+    } 
 
 //    else {
 //      digitalWrite(Relay4, LOW);  // Turn the LED off by making the voltage HIGH
@@ -179,8 +257,8 @@ void callback(char* topic, byte* payload, unsigned int length)
   }
 
 
-//////////////////////////**********************TIMER 2HR ************************ ///////////////////////////////////
-  else if ( strstr(topic, sub5))
+//////////////////////////**********************ON 2HR ************************ ///////////////////////////////////
+  else if ( strstr(topic, sub9))
   {
     for (int i = 0; i < length; i++) {
       Serial.print((char)payload[i]);
@@ -189,13 +267,33 @@ void callback(char* topic, byte* payload, unsigned int length)
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '1') {
 
-      servo.write(180);
       Serial.println("2HR");
+      
+      servo.write(30); // LOW COOL
+      Serial.println("LOW COOL");
+      delay(7.2e+6);
+      
+      servo.write(105); // LOW FAN 3MINS
+      Serial.println("LOW FAN 3MINS");
+      delay(180000);
+      
+      servo.write(180);   // OFF
+
+
     } 
 //    else {
 //      digitalWrite(Relay4, LOW);  // Turn the LED off by making the voltage HIGH
 //    }
   }
+
+
+
+
+
+
+
+
+
 
   else
   {
@@ -225,6 +323,10 @@ void reconnect()
       client.subscribe(sub2);
       client.subscribe(sub3);
       client.subscribe(sub4);
+      client.subscribe(sub5);
+      client.subscribe(sub6);
+      client.subscribe(sub7);
+      client.subscribe(sub9);
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -247,7 +349,7 @@ void setup()
 
   servo.attach(ser, 500, 2400);
   Serial.begin(115200);
-  servo.write(0);
+  servo.write(180);
   setup_wifi();
 
   client.setServer(mqtt_server, 1883);
